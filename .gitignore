@@ -1,0 +1,69 @@
+# Simulation outputs
+
+*.vvp
+*.vcd
+*.fst
+*.lxt
+*.lx2
+
+# GTKWave session files
+
+*.gtkw
+
+# Log files
+
+*.log
+
+# Temporary files
+
+*.tmp
+*.temp
+
+# Backup files
+
+*~
+*.bak
+
+# VS Code
+
+.vscode/
+
+# Windows
+
+Thumbs.db
+Desktop.ini
+
+# Python (if used for verification scripts)
+
+**pycache**/
+*.pyc
+
+# Coverage reports
+
+coverage/
+cov/
+
+# Generated netlists/reports
+
+reports/
+build/
+out/
+
+# Cadence/Questa/VCS/Xcelium generated files
+
+work/
+transcript
+vsim.wlf
+modelsim.ini
+csrc/
+simv*
+DVEfiles/
+INCA_libs/
+xcelium.d/
+
+# Icarus generated executables
+
+sim
+sim.exe
+sim.vvp
+a.out
