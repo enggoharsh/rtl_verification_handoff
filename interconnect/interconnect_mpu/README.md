@@ -72,3 +72,16 @@ graph TD
 1. **Compile**: `iverilog -o sim.vvp interconnect_mpu.v tb_interconnect_mpu.v` (Include dependencies using ` -I ../../includes -I` if necessary)
 2. **Simulate**: `vvp sim.vvp`
 3. **View**: `gtkwave tb_interconnect_mpu.vcd`
+
+## 📊 Verification Waveform
+
+### Input Signals
+![Inputs](./waveform_inputs.png)
+
+### Output Signals
+![Outputs](./waveform_outputs.png)
+
+### 📝 Results and Observations
+- **Input Stimulation:** The `clk` toggles and `rst_n` initializes the module correctly. However, the AXI master input arrays (`s_arvalid`, `s_awvalid`, etc.) and crossbar feedback inputs (`m_rvalid`, `m_bvalid`, etc.) remain completely flat at logic 0 for the entire simulation duration. Additionally, critical configuration inputs (`cfg_base_addr`, `cfg_valid`, etc.) are missing from the trace entirely.
+- **Output Validation:** Since absolutely zero input stimulus is injected into the datapath or control path by the testbench, the MPU remains entirely dormant. All corresponding outputs (`m_arvalid`, `s_arready`, `s_bvalid`, etc.) are completely flat and inactive.
+- **Verdict:** ⚠️ **INCONCLUSIVE**. The testbench fails to supply any AXI traffic or configuration parameters to the `interconnect_mpu`. The module logic is essentially untested by the current randomized stimulus block, necessitating an updated and properly configured testbench.

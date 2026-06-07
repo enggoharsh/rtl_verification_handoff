@@ -69,3 +69,15 @@ Over 500 consecutive cycles, the following inputs receive constrained `$random` 
 - `s_axis_tvalid`
 - `s_axis_tlast`
 - `m_axis_tready`
+
+## 📊 Verification Waveform
+
+### Input Signals
+![Inputs](./waveform_inputs.png)
+
+### Output Signals
+![Outputs](./waveform_outputs.png)
+
+### 📝 Results and Observations
+- **Input Stimulation:**
+- **Output Validation:**

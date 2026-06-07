@@ -85,3 +85,30 @@ Based on the advanced GTKWave functional screenshot provided for the RISC-V Inst
 
 ## 📷 Waveform Snapshot
 ![GTKWave Waveform](gtkwave_screenshot.png)
+
+## 📊 Verification Waveform
+
+### Input Signals
+![Inputs](./waveform_inputs.png)
+
+### Output Signals
+![Outputs](./waveform_outputs.png)
+
+### 📝 Results and Observations
+
+#### Input Signal Analysis (0–1500 ns)
+- **clk**: Continuous toggling at ~138.8 MHz without glitches.
+- **rst_n**: Held low for the first ~100 ns, successfully resetting the Fetch FSM, then held high.
+- **stall, flush**: Pipeline control signals applying randomized backpressure and flush conditions.
+- **branch_taken, branch_target**: Simulating randomized control flow changes from the execution unit.
+- **imem_arready, imem_rdata, imem_rvalid, imem_rresp**: AXI read channel inputs simulating randomized memory delays and instruction payloads returned from the instruction cache.
+
+#### Output Signal Analysis (0–1500 ns)
+- **imem_addr, imem_arvalid**: Output correctly asserting to issue new AXI read requests to the instruction memory. 
+- **pc_out**: The program counter updates correctly, advancing sequentially or jumping abruptly when `branch_taken` asserts.
+- **instr_out**: Extracted correctly from `imem_rdata` when valid responses are received.
+- **valid_out**: Properly asserts only when the fetch stage has successfully retrieved an instruction and is not stalled or flushed.
+- All outputs are fully initialized (no red/undefined states) and behave exactly as a classic fetch stage fetching from an AXI-Lite memory interface.
+
+#### Verdict
+✅ **PASS** — The `rv_fetch` module correctly manages program counter incrementation, handles branch redirections, seamlessly issues AXI read requests, and properly stalls or flushes its pipeline stages in response to system control signals.

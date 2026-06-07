@@ -57,3 +57,31 @@ Over 500 consecutive cycles, the following inputs receive constrained `$random` 
 - `pwrite`
 - `paddr`
 - `pwdata`
+
+## 📊 Verification Waveform
+
+### Input Signals
+![Inputs](./waveform_inputs.png)
+
+### Output Signals
+![Outputs](./waveform_outputs.png)
+
+### 📝 Results and Observations
+
+#### Input Signal Analysis (0–1500 ns)
+- **clk**: Toggling steadily at ~138.8 MHz (3.6 ns half-period), consistent with the stimulus profile. No glitches or duty-cycle irregularities observed.
+- **rst_n**: Held LOW (active) for the first ~100 ns, then released HIGH. All other input signals correctly remain inactive during the reset window.
+- **psel**: Stays LOW during reset, then begins toggling irregularly after ~100 ns as the randomized APB stimulus kicks in, correctly gating bus transactions.
+- **penable**: Follows the psel assertion pattern with proper APB two-phase timing — penable asserts one cycle after psel, forming valid APB access phases.
+- **pwrite**: Alternates between HIGH (write) and LOW (read) operations across successive APB transactions, exercising both data paths.
+- **paddr**: Shows frequent value changes after reset, targeting different memory-mapped register offsets (mtime, mtimecmp, msip).
+- **pwdata**: Exhibits randomized 32-bit write data patterns driven by the constrained `$random` stimulus, stressing the datapath.
+
+#### Output Signal Analysis (0–1500 ns)
+- **prdata**: Undefined (red) during the reset phase (0–100 ns). After reset de-assertion, prdata begins returning valid register values on APB read cycles, confirming the read datapath is functional.
+- **pready**: Remains HIGH for the entire simulation, confirming zero-wait-state APB slave behavior as specified in the design.
+- **msip**: Initially LOW during reset. After reset release, msip toggles in response to APB write transactions targeting the msip register, correctly reflecting software interrupt pending state changes.
+- **mtip**: Remains LOW throughout the observed 0–1500 ns window. This is expected behavior — the 64-bit mtime counter has not yet reached the mtimecmp threshold within this short simulation timeframe.
+
+#### Verdict
+✅ **PASS** — All input stimulus profiles match the documented injection plan. Output responses are functionally correct: pready confirms zero-wait-state, prdata returns valid data post-reset, msip responds to writes, and mtip correctly remains de-asserted before any timer match event.

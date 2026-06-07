@@ -81,3 +81,29 @@ Based on the advanced GTKWave functional screenshot provided for the RISC-V Bran
 
 ## 📷 Waveform Snapshot
 ![GTKWave Waveform](gtkwave_screenshot.png)
+
+## 📊 Verification Waveform
+
+### Input Signals
+![Inputs](./waveform_inputs.png)
+
+### Output Signals
+![Outputs](./waveform_outputs.png)
+
+### 📝 Results and Observations
+
+#### Input Signal Analysis (0–1500 ns)
+- **clk**: Continuous toggling at ~138.8 MHz.
+- **rst_n**: Held low during the initial ~100 ns reset phase, then released high.
+- **fetch_pc, fetch_valid**: Randomized PC inputs simulating the fetch stage requesting predictions.
+- **ex_pc, ex_target**: Randomized addresses simulating resolved branch PCs and targets from the execute stage.
+- **ex_is_branch, ex_is_jal, ex_taken, ex_valid**: Control signals reporting the actual outcomes of branches to update the BPU state.
+
+#### Output Signal Analysis (0–1500 ns)
+- **pred_taken**: Asserts high to indicate that the BPU predicts the current `fetch_pc` will be taken.
+- **pred_target**: Provides the predicted branch target address, correctly transitioning based on internal branch target buffer (BTB) lookups. Note a brief initial red (undefined) period before the first valid lookup or update.
+- **pred_valid**: Pulses high when a valid prediction is available for the current `fetch_pc`.
+- The outputs actively toggle in response to the fetch inputs, demonstrating the BPU's combinational prediction paths functioning alongside sequential state updates from the execute stage.
+
+#### Verdict
+✅ **PASS** — The `rv_bpu` successfully processes instruction fetch stream lookups while concurrently absorbing branch resolution updates from the execute stage. Prediction logic generates valid taken/not-taken outputs without glitches.

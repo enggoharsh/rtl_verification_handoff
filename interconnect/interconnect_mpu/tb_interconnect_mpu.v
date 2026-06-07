@@ -2,49 +2,49 @@
 
 module tb_interconnect_mpu();
 
-    reg  clk;
-    reg  rst_n;
-    reg  cfg_base_addr;
-    reg  cfg_limit_addr;
-    reg  cfg_master_mask;
-    reg  cfg_perm;
-    reg  cfg_valid;
-    reg  s_arvalid;
-    wire s_arready;
-    reg  s_araddr;
-    reg  s_arid;
-    wire m_arvalid;
-    reg  m_arready;
-    wire m_araddr;
-    wire m_arid;
-    reg  m_rvalid;
-    wire m_rready;
-    reg  m_rdata;
-    reg  m_rresp;
-    reg  m_rlast;
-    reg  m_rid;
-    wire s_rvalid;
-    reg  s_rready;
-    wire s_rdata;
-    wire s_rresp;
-    wire s_rlast;
-    wire s_rid;
-    reg  s_awvalid;
-    wire s_awready;
-    reg  s_awaddr;
-    reg  s_awid;
-    wire m_awvalid;
-    reg  m_awready;
-    wire m_awaddr;
-    wire m_awid;
-    reg  m_bvalid;
-    wire m_bready;
-    reg  m_bresp;
-    reg  m_bid;
-    wire s_bvalid;
-    reg  s_bready;
-    wire s_bresp;
-    wire s_bid;
+    logic clk;
+    logic rst_n;
+    logic [39:0] cfg_base_addr [0:15];
+    logic [39:0] cfg_limit_addr [0:15];
+    logic [15:0] cfg_master_mask [0:15];
+    logic [1:0] cfg_perm [0:15];
+    logic cfg_valid [0:15];
+    logic [14:0] s_arvalid;
+    wire [14:0] s_arready;
+    logic [599:0] s_araddr;
+    logic [59:0] s_arid;
+    wire [14:0] m_arvalid;
+    logic [14:0] m_arready;
+    wire [599:0] m_araddr;
+    wire [59:0] m_arid;
+    logic [14:0] m_rvalid;
+    wire [14:0] m_rready;
+    logic [959:0] m_rdata;
+    logic [29:0] m_rresp;
+    logic [14:0] m_rlast;
+    logic [59:0] m_rid;
+    wire [14:0] s_rvalid;
+    logic [14:0] s_rready;
+    wire [959:0] s_rdata;
+    wire [29:0] s_rresp;
+    wire [14:0] s_rlast;
+    wire [59:0] s_rid;
+    logic [14:0] s_awvalid;
+    wire [14:0] s_awready;
+    logic [599:0] s_awaddr;
+    logic [59:0] s_awid;
+    wire [14:0] m_awvalid;
+    logic [14:0] m_awready;
+    wire [599:0] m_awaddr;
+    wire [59:0] m_awid;
+    logic [14:0] m_bvalid;
+    wire [14:0] m_bready;
+    logic [29:0] m_bresp;
+    logic [59:0] m_bid;
+    wire [14:0] s_bvalid;
+    logic [14:0] s_bready;
+    wire [29:0] s_bresp;
+    wire [59:0] s_bid;
 
     // DUT Instantiation
     interconnect_mpu uut (
@@ -93,24 +93,21 @@ module tb_interconnect_mpu();
         .s_bid(s_bid)
     );
 
-    // Clock Generation (138.8 MHz -> ~7.2ns period)
+    // Advanced Clock Generation (138.8 MHz -> ~7.2ns period)
     initial begin
         clk = 0;
-        forever #3.6 clk = ~clk;
     end
 
-    // Initial block for stimulus and VCD dumping
+    always #3.6 clk = ~clk;
+
+    // Main Functional Stimulus Block
+    integer i;
     initial begin
         $dumpfile("tb_interconnect_mpu.vcd");
         $dumpvars(0, tb_interconnect_mpu);
 
-        // Initialize inputs
-        rst_n = 0;
-        cfg_base_addr = 0;
-        cfg_limit_addr = 0;
-        cfg_master_mask = 0;
-        cfg_perm = 0;
-        cfg_valid = 0;
+        // 1. Initialize all data inputs
+        for (i=0; i<16; i=i+1) begin cfg_base_addr[i]=0; cfg_limit_addr[i]=0; cfg_master_mask[i]=0; cfg_perm[i]=0; cfg_valid[i]=0; end
         s_arvalid = 0;
         s_araddr = 0;
         s_arid = 0;
@@ -130,12 +127,38 @@ module tb_interconnect_mpu();
         m_bid = 0;
         s_bready = 0;
 
-        // Reset sequence
+        // 2. Assert Resets
         #10;
-        rst_n = 1;
+        rst_n = 0; // Active low
         #100;
+        // 3. De-assert Resets
+        rst_n = 1;
+        #20;
 
-        // Add manual test stimulus here...
+        // 4. Constrained Random Stimulus Injection
+        // Generating aggressive random toggling to exercise internal logic
+        repeat(500) begin
+            #10;
+            for (i=0; i<16; i=i+1) begin cfg_base_addr[i]=$random; cfg_limit_addr[i]=$random; cfg_master_mask[i]=$random; cfg_perm[i]=$random; cfg_valid[i]=$random; end
+            s_arvalid = $random;
+            s_araddr = $random;
+            s_arid = $random;
+            m_arready = $random;
+            m_rvalid = $random;
+            m_rdata = $random;
+            m_rresp = $random;
+            m_rlast = $random;
+            m_rid = $random;
+            s_rready = $random;
+            s_awvalid = $random;
+            s_awaddr = $random;
+            s_awid = $random;
+            m_awready = $random;
+            m_bvalid = $random;
+            m_bresp = $random;
+            m_bid = $random;
+            s_bready = $random;
+        end
 
         #1000;
         $finish;
